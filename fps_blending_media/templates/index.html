@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FPS Blending Media</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Home Screen -->
+        <div id="home-screen" class="screen active">
+            <h1>FPS Blending Media</h1>
+            <p class="description">Tool that doubles a video's frame rate by blending 50% of the preceding frame and 50% of the following frame to create intermediate frames, producing a smoother video.</p>
+            
+            <div class="upload-section">
+                <input type="file" id="video-input" accept=".mp4,.mov,.webm" hidden>
+                <button id="load-btn" class="btn btn-primary">Load Video</button>
+                <p id="file-name" class="file-name"></p>
+            </div>
+            
+            <button id="interpolate-btn" class="btn btn-success" style="display: none;">Interpolate Frames</button>
+            
+            <div id="error-message" class="error-message" style="display: none;"></div>
+        </div>
+
+        <!-- Processing Screen -->
+        <div id="processing-screen" class="screen">
+            <h2>Processing Video</h2>
+            
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+                <p id="progress-text">0%</p>
+            </div>
+            
+            <div class="time-container">
+                <p>Estimated time: <span id="time-remaining">Calculating...</span></p>
+            </div>
+            
+            <div class="status-container">
+                <p id="status-text">Starting...</p>
+            </div>
+            
+            <div class="facts-container">
+                <div class="fact-box">
+                    <h3>Did you know?</h3>
+                    <p id="random-fact">Loading fun fact...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen" class="screen">
+            <h2>Video Ready!</h2>
+            
+            <div class="video-preview">
+                <video id="result-video" controls>
+                    <source src="" type="video/mp4">
+                    Your browser does not support video playback.
+                </video>
+            </div>
+            
+            <div class="action-buttons">
+                <button id="download-btn" class="btn btn-primary">Download Result</button>
+                <button id="restart-btn" class="btn btn-secondary">Interpolate More Videos</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

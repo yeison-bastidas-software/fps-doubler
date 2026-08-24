@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FPS Blending Media</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Pantalla de Inicio -->
+        <div id="home-screen" class="screen active">
+            <h1>FPS Blending Media</h1>
+            <p class="description">Herramienta que duplica la tasa de frames de un video combinando 50% del frame anterior y 50% del siguiente para crear frames intermedios, produciendo un video más suave.</p>
+            
+            <div class="upload-section">
+                <input type="file" id="video-input" accept=".mp4,.mov,.webm" hidden>
+                <button id="load-btn" class="btn btn-primary">Cargar Video</button>
+                <p id="file-name" class="file-name"></p>
+            </div>
+            
+            <button id="interpolate-btn" class="btn btn-success" style="display: none;">Interpolar Frames</button>
+            
+            <div id="error-message" class="error-message" style="display: none;"></div>
+        </div>
+
+        <!-- Pantalla de Procesamiento -->
+        <div id="processing-screen" class="screen">
+            <h2>Procesando Video</h2>
+            
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+                <p id="progress-text">0%</p>
+            </div>
+            
+            <div class="time-container">
+                <p>Tiempo estimado: <span id="time-remaining">Calculando...</span></p>
+            </div>
+            
+            <div class="status-container">
+                <p id="status-text">Iniciando...</p>
+            </div>
+            
+            <div class="facts-container">
+                <div class="fact-box">
+                    <h3>¿Sabías que?</h3>
+                    <p id="random-fact">Cargando dato curioso...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla de Resultados -->
+        <div id="results-screen" class="screen">
+            <h2>¡Video Listo!</h2>
+            
+            <div class="video-preview">
+                <video id="result-video" controls>
+                    <source src="" type="video/mp4">
+                    Tu navegador no soporta la reproducción de video.
+                </video>
+            </div>
+            
+            <div class="action-buttons">
+                <button id="download-btn" class="btn btn-primary">Descargar Resultado</button>
+                <button id="restart-btn" class="btn btn-secondary">Interpolar Más Videos</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

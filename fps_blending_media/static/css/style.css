@@ -1,0 +1,222 @@
+/* FPS Blending Media - Estilos */
+
+:root {
+    --pine-green: #2E5A38;
+    --dark-sea-green: #4A7C59;
+    --cool-mint: #B8E6D5;
+    --greenish-black: #1A2F23;
+    --white: #FFFFFF;
+    --error: #DC3545;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--greenish-black);
+    color: var(--white);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    background-color: rgba(46, 90, 56, 0.9);
+    border-radius: 15px;
+    padding: 40px;
+    max-width: 800px;
+    width: 100%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.screen {
+    display: none;
+    text-align: center;
+}
+
+.screen.active {
+    display: block;
+}
+
+h1 {
+    color: var(--cool-mint);
+    margin-bottom: 15px;
+    font-size: 2.5rem;
+}
+
+h2 {
+    color: var(--cool-mint);
+    margin-bottom: 25px;
+    font-size: 2rem;
+}
+
+.description {
+    color: var(--cool-mint);
+    margin-bottom: 30px;
+    line-height: 1.6;
+    font-size: 1.1rem;
+}
+
+.upload-section {
+    margin: 30px 0;
+}
+
+.file-name {
+    color: var(--cool-mint);
+    margin-top: 15px;
+    font-style: italic;
+}
+
+.btn {
+    padding: 15px 40px;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 10px;
+    font-weight: 600;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background-color: var(--pine-green);
+    color: var(--white);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: var(--dark-sea-green);
+    transform: translateY(-2px);
+}
+
+.btn-success {
+    background-color: var(--dark-sea-green);
+    color: var(--white);
+}
+
+.btn-success:hover:not(:disabled) {
+    background-color: var(--pine-green);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: var(--cool-mint);
+    color: var(--greenish-black);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background-color: var(--white);
+    transform: translateY(-2px);
+}
+
+.error-message {
+    background-color: rgba(220, 53, 69, 0.2);
+    color: var(--error);
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+    border: 1px solid var(--error);
+}
+
+/* Progress Bar */
+.progress-container {
+    margin: 30px 0;
+}
+
+.progress-bar {
+    background-color: var(--greenish-black);
+    border-radius: 10px;
+    height: 30px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    border: 2px solid var(--dark-sea-green);
+}
+
+.progress-fill {
+    background: linear-gradient(90deg, var(--pine-green), var(--dark-sea-green));
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease;
+    border-radius: 8px;
+}
+
+#progress-text {
+    color: var(--cool-mint);
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.time-container, .status-container {
+    margin: 15px 0;
+    color: var(--cool-mint);
+    font-size: 1.1rem;
+}
+
+/* Facts */
+.facts-container {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: rgba(74, 124, 89, 0.3);
+    border-radius: 10px;
+    border: 1px solid var(--dark-sea-green);
+}
+
+.fact-box h3 {
+    color: var(--cool-mint);
+    margin-bottom: 10px;
+}
+
+#random-fact {
+    color: var(--white);
+    line-height: 1.5;
+    font-style: italic;
+}
+
+/* Video Preview */
+.video-preview {
+    margin: 30px 0;
+    background-color: var(--greenish-black);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid var(--dark-sea-green);
+}
+
+video {
+    width: 100%;
+    max-height: 400px;
+    display: block;
+}
+
+.action-buttons {
+    margin-top: 25px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .container {
+        padding: 25px;
+    }
+    
+    h1 {
+        font-size: 2rem;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+    
+    .btn {
+        padding: 12px 25px;
+        font-size: 1rem;
+    }
+}

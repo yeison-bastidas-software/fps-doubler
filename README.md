@@ -93,7 +93,7 @@ fps_blending_media/
 5. **Audio passthrough**: Extraction and remuxing without re-encoding
 6. **Minimalist code**: No unnecessary dependencies or bloatware
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
@@ -103,7 +103,7 @@ fps_blending_media/
 | Audio out of sync in output | Verify original video has standard codec (H.264/AAC) |
 | Progress bar freezes | Check browser console for errors; refresh and retry |
 
-## 🧪 Quick Testing
+## Quick Testing
 
 To test without waiting 16 minutes:
 
@@ -112,6 +112,6 @@ To test without waiting 16 minutes:
 3. Verify audio stays synchronized
 4. Check that the progress bar and countdown update smoothly
 
-## 📜 License
+## License
 
 This project is licensed under the MIT License. Feel free to use, modify, and distribute it.

@@ -1,31 +1,31 @@
-// FPS Blending Media - Lógica del Frontend
+// FPS Blending Media - Frontend Logic
 
-// Datos curiosos sobre tecnología de video, frame rates e historia del cine
+// Fun facts about video technology, frame rates, and cinema history
 const facts = [
-    "El cine mudo se filmaba a 16-18 fps, pero se proyectaba a 24 fps.",
-    "El estándar de 24 fps se estableció en 1927 con 'El cantante de jazz'.",
-    "Un frame es una imagen estática; 24 frames por segundo crean la ilusión de movimiento.",
-    "La persistencia retiniana permite que nuestro cerebro perciba movimiento continuo.",
-    "Peter Jackson filmó 'El Hobbit' a 48 fps para mayor fluidez.",
-    "Los videojuegos modernos buscan 60 fps o más para una experiencia suave.",
-    "El formato IMAX puede proyectar hasta 48 fps con gran claridad.",
-    "La televisión NTSC usa 29.97 fps, mientras PAL usa 25 fps.",
-    "El primer video digital fue creado en 1951 por John Logie Baird.",
-    "Slow motion se logra grabando a más fps de los que se reproducen.",
-    "El ojo humano puede distinguir hasta 1000 fps en ciertas condiciones.",
-    "La interpolación de frames se usa en TVs modernas para suavizar contenido.",
-    "MPEG fue el primer estándar de compresión de video digital en 1993.",
-    "H.264 es el codec de video más usado mundialmente.",
-    "YouTube soporta hasta 60 fps para videos en 4K.",
-    "Netflix recomienda 24 fps para contenido cinematográfico.",
-    "El blending de frames reduce el motion blur en escenas rápidas.",
-    "Cada frame de video 4K contiene más de 8 millones de píxeles.",
-    "La relación de aspecto 16:9 se estandarizó para HDTV en los 90s.",
-    "El cine analógico usaba película de 35mm desde 1892.",
-    "La corrección de color digital revolucionó la postproducción en los 2000s.",
-    "Los codecs con pérdida descartan datos imperceptibles al ojo humano.",
-    "Un video de 1 minuto a 30 fps tiene 1800 frames individuales.",
-    "La interpolación óptica de flujo crea frames intermedios más precisos."
+    "Silent films were shot at 16-18 fps but projected at 24 fps.",
+    "The 24 fps standard was established in 1927 with 'The Jazz Singer'.",
+    "A frame is a still image; 24 frames per second create the illusion of motion.",
+    "Persistence of vision allows our brain to perceive continuous movement.",
+    "Peter Jackson filmed 'The Hobbit' at 48 fps for greater smoothness.",
+    "Modern video games target 60 fps or higher for a smooth experience.",
+    "IMAX format can project up to 48 fps with great clarity.",
+    "NTSC television uses 29.97 fps, while PAL uses 25 fps.",
+    "The first digital video was created in 1951 by John Logie Baird.",
+    "Slow motion is achieved by recording at higher fps than playback.",
+    "The human eye can distinguish up to 1000 fps under certain conditions.",
+    "Frame interpolation is used in modern TVs to smooth content.",
+    "MPEG was the first digital video compression standard in 1993.",
+    "H.264 is the most widely used video codec worldwide.",
+    "YouTube supports up to 60 fps for 4K videos.",
+    "Netflix recommends 24 fps for cinematic content.",
+    "Frame blending reduces motion blur in fast scenes.",
+    "Each 4K video frame contains over 8 million pixels.",
+    "The 16:9 aspect ratio was standardized for HDTV in the 90s.",
+    "Analog cinema used 35mm film since 1892.",
+    "Digital color grading revolutionized post-production in the 2000s.",
+    "Lossy codecs discard data imperceptible to the human eye.",
+    "A 1-minute video at 30 fps has 1800 individual frames.",
+    "Optical flow interpolation creates more accurate intermediate frames."
 ];
 
 let currentFactIndex = 0;
@@ -57,35 +57,35 @@ loadBtn.addEventListener('click', () => {
     videoInput.click();
 });
 
-// Manejar selección de archivo
+// Handle file selection
 videoInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
-        // Validar extensión
+        // Validate extension
         const ext = file.name.split('.').pop().toLowerCase();
         if (!['mp4', 'mov', 'webm'].includes(ext)) {
-            showError('Formato no soportado. Use .mp4, .mov o .webm');
+            showError('Unsupported format. Use .mp4, .mov or .webm');
             return;
         }
         
-        // Validar tamaño (480 MB)
+        // Validate size (480 MB)
         if (file.size > 480 * 1024 * 1024) {
-            showError('El archivo excede el tamaño máximo de 480 MB');
+            showError('File exceeds maximum size of 480 MB');
             return;
         }
         
-        fileName.textContent = `Archivo seleccionado: ${file.name}`;
+        fileName.textContent = `Selected file: ${file.name}`;
         interpolateBtn.style.display = 'inline-block';
         hideError();
     }
 });
 
-// Iniciar interpolación
+// Start interpolation
 interpolateBtn.addEventListener('click', async () => {
     const file = videoInput.files[0];
     if (!file) return;
     
-    // Deshabilitar botones
+    // Disable buttons
     loadBtn.disabled = true;
     interpolateBtn.disabled = true;
     
@@ -93,7 +93,7 @@ interpolateBtn.addEventListener('click', async () => {
     formData.append('video', file);
     
     try {
-        // Subir video
+        // Upload video
         const uploadResponse = await fetch('/upload', {
             method: 'POST',
             body: formData
@@ -102,22 +102,22 @@ interpolateBtn.addEventListener('click', async () => {
         const uploadData = await uploadResponse.json();
         
         if (!uploadResponse.ok) {
-            throw new Error(uploadData.error || 'Error al subir el video');
+            throw new Error(uploadData.error || 'Error uploading video');
         }
         
         jobId = uploadData.job_id;
         
-        // Cambiar a pantalla de procesamiento
+        // Switch to processing screen
         showScreen('processing');
         startTime = Date.now();
         
-        // Iniciar rotación de facts
+        // Start rotating facts
         rotateFacts();
         
-        // Iniciar procesamiento
+        // Start processing
         await fetch(`/process/${jobId}`, { method: 'POST' });
         
-        // Monitorear progreso
+        // Monitor progress
         monitorProgress();
         
     } catch (error) {
@@ -127,19 +127,19 @@ interpolateBtn.addEventListener('click', async () => {
     }
 });
 
-// Monitorear progreso del procesamiento
+// Monitor processing progress
 async function monitorProgress() {
     const pollInterval = setInterval(async () => {
         try {
             const response = await fetch(`/status/${jobId}`);
             const data = await response.json();
             
-            // Actualizar barra de progreso
+            // Update progress bar
             progressFill.style.width = `${data.progress}%`;
             progressText.textContent = `${data.progress}%`;
             statusText.textContent = data.message;
             
-            // Calcular tiempo restante
+            // Calculate remaining time
             if (data.progress > 0 && startTime) {
                 const elapsed = (Date.now() - startTime) / 1000;
                 const estimatedTotal = elapsed / (data.progress / 100);
@@ -152,7 +152,7 @@ async function monitorProgress() {
                 }
             }
             
-            // Verificar completado
+            // Check completion
             if (data.completed) {
                 clearInterval(pollInterval);
                 stopFacts();
@@ -160,11 +160,11 @@ async function monitorProgress() {
                 return;
             }
             
-            // Verificar error
+            // Check error
             if (data.status === 'failed') {
                 clearInterval(pollInterval);
                 stopFacts();
-                showError(data.error || 'Error en el procesamiento');
+                showError(data.error || 'Processing error');
                 loadBtn.disabled = false;
                 interpolateBtn.disabled = false;
                 showScreen('home');
@@ -172,13 +172,13 @@ async function monitorProgress() {
             }
             
         } catch (error) {
-            console.error('Error monitoreando progreso:', error);
-            timeRemaining.textContent = 'Reconectando...';
+            console.error('Error monitoring progress:', error);
+            timeRemaining.textContent = 'Reconnecting...';
         }
     }, 1000);
 }
 
-// Mostrar resultados
+// Show results
 function showResults(downloadUrl) {
     showScreen('results');
     resultVideo.src = downloadUrl;
@@ -192,7 +192,7 @@ function showResults(downloadUrl) {
     };
 }
 
-// Reiniciar aplicación
+// Restart application
 restartBtn.addEventListener('click', () => {
     jobId = null;
     startTime = null;
@@ -200,8 +200,8 @@ restartBtn.addEventListener('click', () => {
     fileName.textContent = '';
     progressFill.style.width = '0%';
     progressText.textContent = '0%';
-    timeRemaining.textContent = 'Calculando...';
-    statusText.textContent = 'Iniciando...';
+    timeRemaining.textContent = 'Calculating...';
+    statusText.textContent = 'Starting...';
     resultVideo.src = '';
     
     interpolateBtn.style.display = 'none';
@@ -211,7 +211,7 @@ restartBtn.addEventListener('click', () => {
     showScreen('home');
 });
 
-// Utilidades
+// Utilities
 function showScreen(screenName) {
     homeScreen.classList.remove('active');
     processingScreen.classList.remove('active');

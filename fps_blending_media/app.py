@@ -1,6 +1,6 @@
 """
 FPS Blending Media - Backend Server
-Procesamiento de video con interpolación de frames (doble FPS)
+Video processing with frame interpolation (double FPS)
 """
 
 from flask import Flask, render_template, request, jsonify, send_file, url_for
@@ -16,13 +16,13 @@ import uuid
 
 app = Flask(__name__)
 
-# Configuración
+# Configuration
 UPLOAD_FOLDER = 'uploads'
 OUTPUT_FOLDER = 'output'
 TMP_FOLDER = 'tmp'
 ALLOWED_EXTENSIONS = {'mp4', 'mov', 'webm'}
 MAX_FILE_SIZE = 480 * 1024 * 1024  # 480 MB
-MAX_DURATION = 16 * 60  # 16 minutos en segundos
+MAX_DURATION = 16 * 60  # 16 minutes in seconds
 MAX_RESOLUTION = 2048  # 2K
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -30,7 +30,7 @@ app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
 app.config['TMP_FOLDER'] = TMP_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
 
-# Estado de procesamiento
+# Processing state
 processing_jobs = {}
 job_queue = []
 queue_lock = threading.Lock()
@@ -39,11 +39,11 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def validate_video(filepath):
-    """Valida que el video cumpla con los requisitos"""
+    """Validates that the video meets requirements"""
     try:
         cap = cv2.VideoCapture(filepath)
         if not cap.isOpened():
-            return False, "Archivo corrupto o no válido"
+            return False, "Corrupt or invalid file"
         
         fps = cap.get(cv2.CAP_PROP_FPS)
         width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -54,19 +54,19 @@ def validate_video(filepath):
         
         if duration > MAX_DURATION:
             cap.release()
-            return False, f"Duración máxima excedida ({MAX_DURATION/60} minutos)"
+            return False, f"Maximum duration exceeded ({MAX_DURATION/60} minutes)"
         
         if max(width, height) > MAX_RESOLUTION:
             cap.release()
-            return False, f"Resolución máxima excedida (2K)"
+            return False, f"Maximum resolution exceeded (2K)"
         
         cap.release()
-        return True, "Video válido"
+        return True, "Valid video"
     except Exception as e:
-        return False, f"Error al validar: {str(e)}"
+        return False, f"Validation error: {str(e)}"
 
 def get_video_info(filepath):
-    """Obtiene información del video"""
+    """Get video information"""
     cap = cv2.VideoCapture(filepath)
     fps = cap.get(cv2.CAP_PROP_FPS)
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -76,11 +76,11 @@ def get_video_info(filepath):
     return fps, width, height, frame_count
 
 def process_video(job_id, input_path, output_path, status_callback):
-    """Procesa el video interpolando frames"""
+    """Process video by interpolating frames"""
     try:
-        status_callback(job_id, "Extrayendo audio...", 5)
+        status_callback(job_id, "Extracting audio...", 5)
         
-        # Extraer audio
+        # Extract audio
         audio_path = os.path.join(TMP_FOLDER, f"{job_id}_audio.wav")
         cmd_audio = [
             'ffmpeg', '-i', input_path, '-vn', '-acodec', 'pcm_s16le',
@@ -89,17 +89,17 @@ def process_video(job_id, input_path, output_path, status_callback):
         subprocess.run(cmd_audio, capture_output=True, check=False)
         has_audio = os.path.exists(audio_path)
         
-        status_callback(job_id, "Leyendo frames...", 10)
+        status_callback(job_id, "Reading frames...", 10)
         
-        # Leer video
+        # Read video
         cap = cv2.VideoCapture(input_path)
         fps, width, height, total_frames = get_video_info(input_path)
         new_fps = fps * 2
         new_total_frames = total_frames * 2 - 1
         
-        status_callback(job_id, f"Iniciando interpolación ({total_frames} frames)...", 15)
+        status_callback(job_id, f"Starting interpolation ({total_frames} frames)...", 15)
         
-        # Configurar writer
+        # Configure writer
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         temp_output = os.path.join(TMP_FOLDER, f"{job_id}_temp.mp4")
         out = cv2.VideoWriter(temp_output, fourcc, new_fps, (width, height))
@@ -114,13 +114,13 @@ def process_video(job_id, input_path, output_path, status_callback):
                 break
             
             if prev_frame is not None:
-                # Interpolar frame (50% anterior + 50% siguiente)
+                # Interpolate frame (50% previous + 50% next)
                 blended = cv2.addWeighted(prev_frame, 0.5, frame, 0.5, 0)
                 out.write(blended)
                 processed += 1
                 
                 progress = 15 + (processed / total_frames) * 70
-                status_callback(job_id, f"Interpolando frame {processed}/{total_frames}", int(progress))
+                status_callback(job_id, f"Interpolating frame {processed}/{total_frames}", int(progress))
             
             out.write(frame)
             prev_frame = frame
@@ -129,9 +129,9 @@ def process_video(job_id, input_path, output_path, status_callback):
         cap.release()
         out.release()
         
-        status_callback(job_id, "Combinando audio y video...", 90)
+        status_callback(job_id, "Combining audio and video...", 90)
         
-        # Combinar video procesado con audio original
+        # Combine processed video with original audio
         if has_audio:
             cmd_combine = [
                 'ffmpeg', '-i', temp_output, '-i', audio_path,
@@ -146,13 +146,13 @@ def process_video(job_id, input_path, output_path, status_callback):
         
         subprocess.run(cmd_combine, capture_output=True, check=True)
         
-        # Limpiar temporales
+        # Clean up temp files
         if os.path.exists(temp_output):
             os.remove(temp_output)
         if has_audio and os.path.exists(audio_path):
             os.remove(audio_path)
         
-        status_callback(job_id, "Completado", 100)
+        status_callback(job_id, "Completed", 100)
         processing_jobs[job_id]['status'] = 'completed'
         
     except Exception as e:
@@ -163,7 +163,7 @@ def process_video(job_id, input_path, output_path, status_callback):
             os.remove(output_path)
 
 def cleanup_old_files():
-    """Elimina archivos inactivos después de 5 minutos"""
+    """Delete inactive files after 5 minutes"""
     now = datetime.now()
     for folder in [UPLOAD_FOLDER, OUTPUT_FOLDER, TMP_FOLDER]:
         for filename in os.listdir(folder):
@@ -176,7 +176,7 @@ def cleanup_old_files():
                 pass
 
 def update_status(job_id, message, progress):
-    """Actualiza el estado del job"""
+    """Update job status"""
     if job_id in processing_jobs:
         processing_jobs[job_id]['message'] = message
         processing_jobs[job_id]['progress'] = progress
@@ -190,17 +190,17 @@ def index():
 @app.route('/upload', methods=['POST'])
 def upload():
     if len(job_queue) >= 1 and any(j['status'] == 'processing' for j in processing_jobs.values()):
-        return jsonify({'error': 'Solo se permite un video a la vez'}), 429
+        return jsonify({'error': 'Only one video at a time allowed'}), 429
     
     if 'video' not in request.files:
-        return jsonify({'error': 'No se seleccionó archivo'}), 400
+        return jsonify({'error': 'No file selected'}), 400
     
     file = request.files['video']
     if file.filename == '':
-        return jsonify({'error': 'No se seleccionó archivo'}), 400
+        return jsonify({'error': 'No file selected'}), 400
     
     if not allowed_file(file.filename):
-        return jsonify({'error': 'Formato no soportado. Use .mp4, .mov o .webm'}), 400
+        return jsonify({'error': 'Unsupported format. Use .mp4, .mov or .webm'}), 400
     
     job_id = str(uuid.uuid4())
     filename = secure_filename(f"{job_id}_{file.filename}")
@@ -208,7 +208,7 @@ def upload():
     
     file.save(filepath)
     
-    # Validar video
+    # Validate video
     valid, message = validate_video(filepath)
     if not valid:
         os.remove(filepath)
@@ -218,7 +218,7 @@ def upload():
         'input_path': filepath,
         'output_path': os.path.join(OUTPUT_FOLDER, f"{job_id}_result.mp4"),
         'status': 'queued',
-        'message': 'En cola...',
+        'message': 'Queued...',
         'progress': 0,
         'completed': False,
         'error': None
@@ -232,10 +232,10 @@ def upload():
 @app.route('/process/<job_id>', methods=['POST'])
 def process(job_id):
     if job_id not in processing_jobs:
-        return jsonify({'error': 'Job no encontrado'}), 404
+        return jsonify({'error': 'Job not found'}), 404
     
     if processing_jobs[job_id]['status'] != 'queued':
-        return jsonify({'error': 'Job ya en procesamiento'}), 400
+        return jsonify({'error': 'Job already processing'}), 400
     
     processing_jobs[job_id]['status'] = 'processing'
     
@@ -246,12 +246,12 @@ def process(job_id):
     )
     thread.start()
     
-    return jsonify({'message': 'Procesamiento iniciado'})
+    return jsonify({'message': 'Processing started'})
 
 @app.route('/status/<job_id>')
 def status(job_id):
     if job_id not in processing_jobs:
-        return jsonify({'error': 'Job no encontrado'}), 404
+        return jsonify({'error': 'Job not found'}), 404
     
     job = processing_jobs[job_id]
     return jsonify({
@@ -266,7 +266,7 @@ def status(job_id):
 @app.route('/download/<job_id>')
 def download(job_id):
     if job_id not in processing_jobs or not processing_jobs[job_id]['completed']:
-        return jsonify({'error': 'Resultado no disponible'}), 404
+        return jsonify({'error': 'Result not available'}), 404
     
     return send_file(
         processing_jobs[job_id]['output_path'],
@@ -282,7 +282,7 @@ def cancel(job_id):
             os.remove(processing_jobs[job_id]['input_path'])
         if os.path.exists(processing_jobs[job_id]['output_path']):
             os.remove(processing_jobs[job_id]['output_path'])
-    return jsonify({'message': 'Cancelado'})
+    return jsonify({'message': 'Cancelled'})
 
 if __name__ == '__main__':
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
